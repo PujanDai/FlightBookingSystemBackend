@@ -24,7 +24,7 @@
 export const DB = {
   PROTOCOL: "mongodb",
   HOST: "127.0.0.1",
-  NAME: "eventmanagement",
+  NAME: "flightBooking",
   USER: "",
   PWD: "",
   PORT: 27017,
