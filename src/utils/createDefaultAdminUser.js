@@ -18,7 +18,7 @@ export const createDefaultAdminUser = async () => {
   const newAdmin = new User({
     email: adminEmail,
     password: hashedPassword,
-    name: "Event management admin user",
+    name: "Flight Booking admin user",
     role: "ADMIN",
     isVerified: true,
     isFirstTimeLogin: true,

@@ -4,7 +4,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Verify your Campus Event Hub account</title>
+    <title>Verify your Flixor Flights account</title>
   </head>
   <body
     style="
@@ -27,7 +27,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
       <tr>
         <td
           style="
-            background: linear-gradient(135deg, #14b8a6, #0d9488);
+            background: linear-gradient(135deg, #22c55e, #0ea5e9);
             padding: 24px 20px;
             border-radius: 18px 18px 0 0;
             text-align: left;
@@ -51,7 +51,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
                     margin-bottom: 8px;
                   "
                 >
-                  CE
+                  FF
                 </div>
                 <h1
                   style="
@@ -72,8 +72,8 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
                     max-width: 360px;
                   "
                 >
-                  Activate your Campus Event Hub account to start discovering and
-                  managing college events.
+                  Activate your Flixor Flights account to start booking and
+                  managing your trips.
                 </p>
               </td>
             </tr>
@@ -103,7 +103,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
             </p>
             <p style="margin: 0 0 16px; font-size: 13px; color: #334155;">
               Thank you for signing up to
-              <strong style="color: #0f172a;">Campus Event Hub</strong>. Use the
+              <strong style="color: #0f172a;">Flixor Flights</strong>. Use the
               verification code below to confirm your email address:
             </p>
 
@@ -137,7 +137,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
             <p style="margin: 0; font-size: 12px; color: #64748b;">
               Best regards,<br />
               <span style="color: #0f172a; font-weight: 600;"
-                >Campus Event Hub Team</span
+                >Flixor Flights Team</span
               >
             </p>
           </div>
@@ -150,7 +150,7 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
               text-align: center;
             "
           >
-            This is an automated message from Campus Event Hub. Please do not
+            This is an automated message from Flixor Flights. Please do not
             reply to this email.
           </p>
         </td>
@@ -166,7 +166,7 @@ export const PASSWORD_RESET_SUCCESS_TEMPLATE = `
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Campus Event Hub password has been reset</title>
+    <title>Your Flixor Flights password has been reset</title>
   </head>
   <body
     style="
@@ -189,7 +189,7 @@ export const PASSWORD_RESET_SUCCESS_TEMPLATE = `
       <tr>
         <td
           style="
-            background: linear-gradient(135deg, #14b8a6, #0d9488);
+            background: linear-gradient(135deg, #22c55e, #0ea5e9);
             padding: 24px 20px;
             border-radius: 18px 18px 0 0;
             text-align: left;
@@ -210,7 +210,7 @@ export const PASSWORD_RESET_SUCCESS_TEMPLATE = `
               margin-bottom: 8px;
             "
           >
-            CE
+            FF
           </div>
           <h1
             style="
@@ -258,7 +258,7 @@ export const PASSWORD_RESET_SUCCESS_TEMPLATE = `
             </p>
             <p style="margin: 0 0 18px; font-size: 13px; color: #334155;">
               We&apos;re letting you know that the password for your
-              <strong style="color: #0f172a;">Campus Event Hub</strong> account
+              <strong style="color: #0f172a;">Flixor Flights</strong> account
               has just been reset.
             </p>
 
@@ -297,7 +297,7 @@ export const PASSWORD_RESET_SUCCESS_TEMPLATE = `
             >
               <li>Reset your password again from a trusted device.</li>
               <li>
-                Review any recent activity on your Campus Event Hub account.
+                Review any recent activity on your Flixor Flights account.
               </li>
               <li>
                 Avoid reusing passwords that you use on other websites or apps.
@@ -305,10 +305,10 @@ export const PASSWORD_RESET_SUCCESS_TEMPLATE = `
             </ul>
 
             <p style="margin: 0; font-size: 12px; color: #64748b;">
-              Thank you for helping us keep your account and campus data secure.
+              Thank you for helping us keep your account and travel data secure.
               <br />
               <span style="color: #0f172a; font-weight: 600;"
-                >Campus Event Hub Team</span
+                >Flixor Flights Team</span
               >
             </p>
           </div>
@@ -337,7 +337,7 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Reset your Campus Event Hub password</title>
+    <title>Reset your Flixor Flights password</title>
   </head>
   <body
     style="
@@ -360,7 +360,7 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
       <tr>
         <td
           style="
-            background: linear-gradient(135deg, #14b8a6, #0d9488);
+            background: linear-gradient(135deg, #22c55e, #0ea5e9);
             padding: 24px 20px;
             border-radius: 18px 18px 0 0;
             text-align: left;
@@ -381,7 +381,7 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
               margin-bottom: 8px;
             "
           >
-            CE
+            FF
           </div>
           <h1
             style="
@@ -402,7 +402,7 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
               max-width: 360px;
             "
           >
-            You requested to reset the password for your Campus Event Hub
+            You requested to reset the password for your Flixor Flights
             account.
           </p>
         </td>
@@ -430,7 +430,7 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
             </p>
             <p style="margin: 0 0 16px; font-size: 13px; color: #334155;">
               We received a request to reset your
-              <strong style="color: #0f172a;">Campus Event Hub</strong> password.
+              <strong style="color: #0f172a;">Flixor Flights</strong> password.
               If you didn&apos;t make this request, you can safely ignore this
               email.
             </p>
@@ -478,7 +478,7 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
             <p style="margin: 0; font-size: 12px; color: #64748b;">
               Best regards,<br />
               <span style="color: #0f172a; font-weight: 600;"
-                >Campus Event Hub Team</span
+                >Flixor Flights Team</span
               >
             </p>
           </div>

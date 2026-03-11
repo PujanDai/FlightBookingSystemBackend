@@ -6,6 +6,8 @@ import colors from "colors";
 import userRoutes from "./routes/user.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import messageRoutes from "./routes/message.routes.js";
+import flightRoutes from "./routes/flightRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 import { Server } from "socket.io";
 
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
@@ -38,6 +40,8 @@ app.get("/", (req, res) => {
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
+app.use("/api/flights", flightRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 
 app.use(notFound);
@@ -73,9 +77,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("typing", (room) => socket.in(room).emit("typing"));
-  
-  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));  
-  
+
+  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+
   socket.on("new message", (newMessageRecieved) => {
     var chat = newMessageRecieved.chat;
 

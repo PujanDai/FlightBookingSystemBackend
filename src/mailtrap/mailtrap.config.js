@@ -30,6 +30,6 @@ export const transporter = nodemailer.createTransport({
 });
 
 export const sender = {
-  email: "eventsedu73@gmail.com",
-  name: "Bigyan Khadka",
+  email: process.env.MAILTRAP_USER,
+  name: "Pujan Raj Poudyal",
 };
