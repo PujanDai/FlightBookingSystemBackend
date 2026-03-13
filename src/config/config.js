@@ -29,5 +29,8 @@ export const DB = {
   PWD: "",
   PORT: 27017,
 };
+// export const DB = {
+//   URL: "mongodb+srv://poudyalpujan7_db_user:Pujan%409818114838@airticket.ajg9lhf.mongodb.net/flightBooking?retryWrites=true&w=majority"
+// };
 
 export const ENVIROMENT = "dev";
