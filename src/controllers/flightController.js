@@ -5,22 +5,23 @@ import Flight from "../models/flightModel.js";
 // @route   GET /api/flights
 // @access  Public
 const getFlights = asyncHandler(async (req, res) => {
-    const { origin, destination, date } = req.query;
+  const { origin, destination } = req.query;
 
-    let query = {};
+  const query = {};
 
-    if (origin) {
-        query["origin.cityName"] = { $regex: origin, $options: "i" };
-    }
+  // Frontend sends IATA airport codes (e.g. KTM, DXB) from the dropdown.
+  // Match against airportCode and also allow partial/case-insensitive matches.
+  if (origin) {
+    query["origin.airportCode"] = { $regex: origin, $options: "i" };
+  }
 
-    if (destination) {
-        query["destination.cityName"] = { $regex: destination, $options: "i" };
-    }
+  if (destination) {
+    query["destination.airportCode"] = { $regex: destination, $options: "i" };
+  }
 
-    // Basic search implementation
-    const flights = await Flight.find(query).limit(50); // Limit results for performance
+  const flights = await Flight.find(query).limit(50);
 
-    res.json(flights);
+  res.json(flights);
 });
 
 // @desc    Create a flight

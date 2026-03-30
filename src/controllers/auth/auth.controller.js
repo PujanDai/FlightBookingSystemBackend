@@ -28,7 +28,7 @@ export const checkAuth = async (req, res) => {
 };
 
 export const signup = async (req, res) => {
-  const { email, name, role, password } = req.body;
+     const { email, name, role, password } = req.body;
 
   try {
     if (!email || !name || !password) {
@@ -253,11 +253,11 @@ export const allUsers = expressAsyncHandler(async (req, res) => {
   try {
     const keyword = req.query.search
       ? {
-          $or: [
-            { name: { $regex: req.query.search, $options: "i" } },
-            { email: { $regex: req.query.search, $options: "i" } },
-          ],
-        }
+        $or: [
+          { name: { $regex: req.query.search, $options: "i" } },
+          { email: { $regex: req.query.search, $options: "i" } },
+        ],
+      }
       : {};
 
     const users = await User.find(keyword).find({
