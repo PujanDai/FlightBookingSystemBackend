@@ -7,6 +7,21 @@ const passengerSchema = mongoose.Schema({
     passportNumber: { type: String },
 });
 
+const priceHistorySchema = mongoose.Schema(
+    {
+        oldPrice: { type: Number, required: true },
+        newPrice: { type: Number, required: true },
+        reason: { type: String, required: true, trim: true },
+        changedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+        },
+        createdAt: { type: Date, default: Date.now },
+    },
+    { _id: false }
+);
+
 const bookingSchema = mongoose.Schema(
     {
         user: {
@@ -38,6 +53,24 @@ const bookingSchema = mongoose.Schema(
             type: String,
             unique: true,
         },
+        expiresAt: {
+            type: Date,
+        },
+        isExpired: {
+            type: Boolean,
+            default: false,
+        },
+        priceHistory: {
+            type: [priceHistorySchema],
+            default: [],
+        },
+        priceUpdatedAt: {
+            type: Date,
+        },
+        lastUpdatedByAdmin: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        },
     },
     {
         timestamps: true,
@@ -46,6 +79,11 @@ const bookingSchema = mongoose.Schema(
 
 // Pre-save hook to generate a booking reference
 bookingSchema.pre("save", function (next) {
+    if (!this.expiresAt) {
+        const createdAtDate = this.createdAt ? new Date(this.createdAt) : new Date();
+        this.expiresAt = new Date(createdAtDate.getTime() + 24 * 60 * 60 * 1000);
+    }
+
     if (!this.bookingReference) {
         this.bookingReference = "FLX-" + Math.random().toString(36).toUpperCase().substring(2, 10);
     }

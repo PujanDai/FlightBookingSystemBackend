@@ -391,3 +391,99 @@ export const sendBookingPaymentSuccessEmail = async (booking) => {
     throw new Error(`Error sending booking payment success email: ${error.message}`);
   }
 };
+
+export const sendBookingPriceUpdatedEmail = async ({
+  booking,
+  oldPrice,
+  newPrice,
+  difference,
+  reason,
+}) => {
+  const userEmail = booking?.user?.email;
+  const userName = booking?.user?.name || "Traveller";
+
+  if (!userEmail) {
+    throw new Error("Booking user email is missing");
+  }
+
+  const html = `
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Important Update: Your Flight Booking Price Has Changed</title>
+    </head>
+    <body style="font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; background:#f8fafc; color:#0f172a; margin:0; padding:20px;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;margin:0 auto;">
+        <tr>
+          <td style="background:linear-gradient(135deg,#f59e0b,#f97316);padding:20px;border-radius:16px 16px 0 0;color:#fff;">
+            <h1 style="margin:0;font-size:22px;">Fare Updated</h1>
+            <p style="margin:6px 0 0;font-size:13px;">Please review your updated booking amount before completing payment.</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#fff;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 16px 16px;padding:20px;">
+            <p style="margin:0 0 10px;">Hi ${userName},</p>
+            <p style="margin:0 0 14px;color:#334155;">
+              There is an important update to your booking price.
+            </p>
+            <p style="margin:0 0 8px;"><strong>Booking Reference:</strong> ${booking?.bookingReference || "-"}</p>
+            <p style="margin:0 0 8px;"><strong>Old Price:</strong> NPR ${(oldPrice || 0).toLocaleString()}</p>
+            <p style="margin:0 0 8px;"><strong>New Price:</strong> NPR ${(newPrice || 0).toLocaleString()}</p>
+            <p style="margin:0 0 8px;"><strong>Difference:</strong> NPR ${(difference || 0).toLocaleString()}</p>
+            <p style="margin:0 0 8px;"><strong>Reason:</strong> ${reason || "-"}</p>
+            <p style="margin:12px 0 0;color:#64748b;font-size:12px;">
+              Please review this updated fare in your booking dashboard before proceeding with payment.
+            </p>
+            <p style="margin:12px 0 0;color:#64748b;font-size:12px;">
+              Regards,<br/><strong style="color:#0f172a;">Flixor Flights Team</strong>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </body>
+  </html>
+  `;
+
+  try {
+    const response = await transporter.sendMail({
+      from: `"${sender.name}" <${sender.email}>`,
+      to: userEmail,
+      subject: "Important Update: Your Flight Booking Price Has Changed",
+      html,
+    });
+    console.log("Booking price update email sent:", response.messageId);
+  } catch (error) {
+    console.error("Error sending booking price updated email:", error);
+    throw new Error(`Error sending booking price updated email: ${error.message}`);
+  }
+};
+
+export const sendBookingExpiryWarningEmail = async ({ booking }) => {
+  const userEmail = booking?.user?.email;
+  const userName = booking?.user?.name || "Traveller";
+  if (!userEmail) return;
+
+  const html = `
+  <div style="font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; background:#f8fafc; padding:20px;">
+    <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;">
+      <h2 style="margin:0 0 8px;color:#0f172a;">Booking Expiry Warning</h2>
+      <p style="margin:0 0 12px;color:#334155;">Hi ${userName}, your booking will expire soon.</p>
+      <p style="margin:0;color:#334155;"><strong>Booking Reference:</strong> ${booking?.bookingReference || "-"}</p>
+      <p style="margin:8px 0 0;color:#334155;">Your booking expires in 2 hours. Please complete payment to secure your seat.</p>
+      <p style="margin:14px 0 0;color:#64748b;font-size:12px;">Flixor Flights Team</p>
+    </div>
+  </div>`;
+
+  try {
+    await transporter.sendMail({
+      from: `"${sender.name}" <${sender.email}>`,
+      to: userEmail,
+      subject: "Your booking expires in 2 hours",
+      html,
+    });
+  } catch (error) {
+    console.error("Error sending booking expiry warning email:", error.message);
+  }
+};

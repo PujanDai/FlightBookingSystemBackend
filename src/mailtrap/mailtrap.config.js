@@ -8,8 +8,8 @@ export const transporter = nodemailer.createTransport({
   port: 465, // Usually 587 or 2525
   secure: true,
   auth: {
-    user: "eventsedu73@gmail.com",
-    pass: "idfg ioka xijf ltsg",
+    user: "poudyalpujan7@gmail.com",
+    pass: "ysif lzae pfeu ylah",
   },
   tls: {
     rejectUnauthorized: false,
@@ -17,6 +17,6 @@ export const transporter = nodemailer.createTransport({
 });
 
 export const sender = {
-  email: "eventsedu73@gmail.com",
+  email: "poudyalpujan7@gmail.com",
   name: "Pujan Raj Poudyal",
 };

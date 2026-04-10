@@ -8,6 +8,9 @@ import chatRoutes from "./routes/chat.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import flightRoutes from "./routes/flightRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import adminBookingRoutes from "./routes/adminBookingRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
+import { startNotificationCronJobs } from "./jobs/notificationCron.js";
 import { Server } from "socket.io";
 
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
@@ -23,7 +26,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: true,
     credentials: true,
   })
 );
@@ -42,6 +45,8 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/flights", flightRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/admin/bookings", adminBookingRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 
 app.use(notFound);
@@ -52,6 +57,7 @@ const PORT = process.env.PORT || 7100;
 const server = app.listen(PORT, async () => {
   await connectDB();
   await createDefaultAdminUser();
+  startNotificationCronJobs();
   console.log(`Server Started on PORT ${PORT}`.yellow.bold);
 });
 
