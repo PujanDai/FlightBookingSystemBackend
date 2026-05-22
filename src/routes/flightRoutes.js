@@ -1,6 +1,7 @@
 import express from "express";
 import {
     getFlights,
+    getFlightById,
     createFlight,
     updateFlight,
     deleteFlight
@@ -14,9 +15,9 @@ router.route("/")
     .get(getFlights)
     .post(verifyTokenMiddleware, isAdmin, createFlight);
 
-// router.route("/:id")
-//     .get(getFlightById)
-//     .put(verifyTokenMiddleware, isAdmin, updateFlight)
-//     .delete(verifyTokenMiddleware, isAdmin, deleteFlight);
+router.route("/:id")
+    .get(getFlightById)
+    .put(verifyTokenMiddleware, isAdmin, updateFlight)
+    .delete(verifyTokenMiddleware, isAdmin, deleteFlight);
 
 export default router;

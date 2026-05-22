@@ -5,7 +5,7 @@ import Flight from "../models/flightModel.js";
 // @route   GET /api/flights
 // @access  Public
 const getFlights = asyncHandler(async (req, res) => {
-  const { origin, destination } = req.query;
+  const { origin, destination, date } = req.query;
 
   const query = {};
 
@@ -19,9 +19,35 @@ const getFlights = asyncHandler(async (req, res) => {
     query["destination.airportCode"] = { $regex: destination, $options: "i" };
   }
 
-  const flights = await Flight.find(query).limit(50);
+  // Date handling: show flights departing on or after the chosen date, and
+  // never show flights that have already departed. Using "on or after" (rather
+  // than an exact-day match) keeps results useful when a route has few flights.
+  const now = new Date();
+  if (date) {
+    const start = new Date(`${date}T00:00:00`);
+    query["origin.dateTime"] =
+      !Number.isNaN(start.getTime()) && start > now ? { $gte: start } : { $gte: now };
+  } else {
+    query["origin.dateTime"] = { $gte: now };
+  }
+
+  const flights = await Flight.find(query).sort("origin.dateTime").limit(50);
 
   res.json(flights);
+});
+
+// @desc    Fetch a single flight by id
+// @route   GET /api/flights/:id
+// @access  Public
+const getFlightById = asyncHandler(async (req, res) => {
+  const flight = await Flight.findById(req.params.id);
+
+  if (flight) {
+    res.json(flight);
+  } else {
+    res.status(404);
+    throw new Error("Flight not found");
+  }
 });
 
 // @desc    Create a flight
@@ -64,4 +90,4 @@ const deleteFlight = asyncHandler(async (req, res) => {
     }
 });
 
-export { getFlights, createFlight, updateFlight, deleteFlight };
+export { getFlights, getFlightById, createFlight, updateFlight, deleteFlight };

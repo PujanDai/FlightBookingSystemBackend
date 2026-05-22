@@ -1,6 +1,14 @@
 import asyncHandler from "express-async-handler";
+import mongoose from "mongoose";
 import Booking from "../models/bookingModel.js";
 import Flight from "../models/flightModel.js";
+import { notifyBookingCancelled } from "../utils/bookingNotification.js";
+
+const hoursUntilDeparture = (departureDate) => {
+    const departureMs = new Date(departureDate).getTime();
+    if (Number.isNaN(departureMs)) return null;
+    return (departureMs - Date.now()) / (1000 * 60 * 60);
+};
 
 // @desc    Create new booking
 // @route   POST /api/bookings
@@ -87,4 +95,75 @@ export const getAllBookings = asyncHandler(async (req, res) => {
         .populate("flight")
         .sort("-createdAt");
     res.json(bookings);
+});
+
+// @desc    Cancel booking (free if departure is more than 24 hours away)
+// @route   POST /api/bookings/:id/cancel
+// @access  Private
+export const cancelBooking = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400);
+        throw new Error("Invalid booking ID");
+    }
+
+    const existing = await Booking.findById(id).populate("flight");
+    if (!existing) {
+        res.status(404);
+        throw new Error("Booking not found");
+    }
+
+    if (existing.user.toString() !== req.userId) {
+        res.status(403);
+        throw new Error("Not authorized to cancel this booking");
+    }
+
+    if (existing.status === "CANCELLED") {
+        res.status(409);
+        throw new Error("Booking is already cancelled");
+    }
+
+    const departureDate = existing.flight?.origin?.dateTime;
+    if (!departureDate) {
+        res.status(400);
+        throw new Error("Flight departure information unavailable");
+    }
+
+    const hoursLeft = hoursUntilDeparture(departureDate);
+    if (hoursLeft === null) {
+        res.status(400);
+        throw new Error("Invalid flight departure time");
+    }
+
+    if (hoursLeft <= 24) {
+        res.status(400);
+        throw new Error(
+            "Cancellation is only allowed more than 24 hours before departure"
+        );
+    }
+
+    const updated = await Booking.findOneAndUpdate(
+        { _id: id, user: req.userId, status: { $ne: "CANCELLED" } },
+        { $set: { status: "CANCELLED" } },
+        { new: true }
+    ).populate("flight");
+
+    if (!updated) {
+        res.status(409);
+        throw new Error("Booking is already cancelled");
+    }
+
+    const flight = await Flight.findById(updated.flight._id);
+    if (flight) {
+        flight.attr.availableSeats += updated.passengers.length;
+        await flight.save();
+    }
+
+    await notifyBookingCancelled(updated);
+
+    res.json({
+        message: "Booking cancelled successfully",
+        booking: updated,
+    });
 });
