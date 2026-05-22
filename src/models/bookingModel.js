@@ -38,6 +38,11 @@ const bookingSchema = mongoose.Schema(
             type: String,
             unique: true,
         },
+        // Payment hold window: a new booking must be paid within 24 hours.
+        expiresAt: {
+            type: Date,
+            default: () => new Date(Date.now() + 24 * 60 * 60 * 1000),
+        },
     },
     {
         timestamps: true,

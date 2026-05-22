@@ -8,6 +8,11 @@ import chatRoutes from "./routes/chat.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import flightRoutes from "./routes/flightRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
+import metaRoutes from "./routes/metaRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
+import faqRoutes from "./routes/faqRoutes.js";
+import assistantRoutes from "./routes/assistant.routes.js";
 import { Server } from "socket.io";
 
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
@@ -21,17 +26,17 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+// Reflect the request's Origin so any local dev client can connect:
+// React web (:3000), Flutter web (random Chrome port), Flutter native, etc.
+// `origin: true` echoes the caller's origin, which is required for
+// credentialed (cookie) requests — a wildcard "*" is rejected by browsers
+// when credentials are enabled.
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: true,
     credentials: true,
   })
 );
-// app.use(
-//   cors({
-//     origin: "*",
-//   })
-// );
 
 app.get("/", (req, res) => {
   res.send("API is Runnning Successfully");
@@ -42,6 +47,11 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/flights", flightRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api", metaRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/faqs", faqRoutes);
+app.use("/api/assistant", assistantRoutes);
 
 
 app.use(notFound);
@@ -58,7 +68,7 @@ const server = app.listen(PORT, async () => {
 const io = new Server(server, {
   pingTimeout: 60000,
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: "http://localhost:3000",
   },
 });
 

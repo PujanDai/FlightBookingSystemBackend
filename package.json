@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
-    "production": "nodemon src/server.js production"
+    "production": "nodemon src/server.js production",
+    "seed": "node src/utils/dataSeeder.js",
+    "seed:dates": "node src/utils/reseedFlightDates.js"
   },
   "author": "Pujan Raj Poudyal",
   "type": "module",
