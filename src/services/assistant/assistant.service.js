@@ -1,9 +1,12 @@
 // Orchestrator for the AI assistant — the single entry point the controller
-// calls. It runs the request pipeline and owns graceful degradation.
+// calls. It runs the 3-tier request pipeline and owns graceful degradation.
 //
-// Phase 1: every message is general chat. Phase 2 will insert intent
-// classification + handler routing at the marked extension point below, so
-// most messages will be answered without ever calling Gemini.
+//   Tier 0  classifyIntent()      free, 0 tokens — keyword rules
+//   Tier 1  a specialised handler answers from the database (FAQ, flights...)
+//   Tier 2  general chat fallback — Gemini with the flight system prompt
+//
+// Most messages are answered in Tier 0/1 without a full LLM call, which is
+// the design's main token-saving mechanism.
 import {
   getOrCreateSession,
   getRecentHistory,
@@ -14,6 +17,8 @@ import {
 import { buildContents } from "./prompt.builder.js";
 import { generateContent, GeminiError } from "./gemini.client.js";
 import { isGeminiConfigured } from "../../config/gemini.config.js";
+import { classifyIntent, INTENT } from "./intent.service.js";
+import { handlers } from "./handlers/index.js";
 
 // Shown when Gemini is unreachable or not yet configured. The user still gets
 // a useful, on-brand reply instead of a raw error.
@@ -23,9 +28,8 @@ const FALLBACK_REPLY =
   "chat again in a moment.";
 
 /**
- * Call Gemini with a single retry for transient failures.
- * We deliberately do NOT retry on 429 (quota) — retrying would only make a
- * quota problem worse.
+ * Call Gemini with a single retry for transient failures. We deliberately do
+ * NOT retry on 429 (quota) — retrying would only make a quota problem worse.
  */
 const callGeminiWithRetry = async (contents) => {
   try {
@@ -39,20 +43,10 @@ const callGeminiWithRetry = async (contents) => {
 };
 
 /**
- * Handle one user message end-to-end: load context, get a reply, persist.
- * @param {{userId:string, sessionId?:string, message:string}} input
- * @returns {Promise<{sessionId:string, reply:string, intent:string, data:object|null, suggestions:string[]}>}
+ * Tier 2 — general flight chat. Uses the system prompt + recent history.
+ * @returns {Promise<{intent:string, reply:string, usage:object|null, data:null, suggestions:string[]}>}
  */
-export const handleMessage = async ({ userId, sessionId, message }) => {
-  const session = await getOrCreateSession(userId, sessionId);
-
-  // --- Phase 2 extension point --------------------------------------------
-  // Intent classification + handler routing will go here. Handlers that can
-  // answer from the database (FAQs, cheapest flight, refunds...) will return
-  // early — so the Gemini call below becomes the GENERAL_CHAT fallback only.
-  const intent = "GENERAL_CHAT";
-  // ------------------------------------------------------------------------
-
+const generalChat = async (session, message) => {
   let reply = FALLBACK_REPLY;
   let usage = null;
 
@@ -65,7 +59,7 @@ export const handleMessage = async ({ userId, sessionId, message }) => {
       usage = result.usage;
     } catch (err) {
       // Logged for the developer; internals are never exposed to the client.
-      console.error("Assistant Gemini call failed:", err.message);
+      console.error("Assistant general chat failed:", err.message);
       reply = FALLBACK_REPLY;
     }
   } else {
@@ -74,14 +68,51 @@ export const handleMessage = async ({ userId, sessionId, message }) => {
     );
   }
 
-  await recordTurn(session, { userMessage: message, reply, intent, usage });
+  return { intent: INTENT.GENERAL_CHAT, reply, usage, data: null, suggestions: [] };
+};
+
+/**
+ * Handle one user message end-to-end: classify, route, persist.
+ * @param {{userId:string, sessionId?:string, message:string}} input
+ * @returns {Promise<{sessionId:string, reply:string, intent:string, data:object|null, suggestions:string[]}>}
+ */
+export const handleMessage = async ({ userId, sessionId, message }) => {
+  const session = await getOrCreateSession(userId, sessionId);
+
+  // --- Tier 0: classify the intent (free, 0 tokens). ----------------------
+  const intent = classifyIntent(message);
+
+  // --- Tier 1: let a specialised handler try to answer from the database. -
+  let result = null;
+  const handler = handlers[intent];
+  if (handler) {
+    try {
+      const handled = await handler({ message, userId, session });
+      if (handled?.handled) result = handled;
+    } catch (err) {
+      // A handler failure is never fatal — fall through to general chat.
+      console.error(`Assistant handler (${intent}) failed:`, err.message);
+    }
+  }
+
+  // --- Tier 2: general chat fallback. -------------------------------------
+  if (!result) {
+    result = await generalChat(session, message);
+  }
+
+  await recordTurn(session, {
+    userMessage: message,
+    reply: result.reply,
+    intent: result.intent,
+    usage: result.usage,
+  });
 
   return {
     sessionId: session.sessionId,
-    reply,
-    intent,
-    data: null, // populated by data-driven intent handlers from Phase 2+
-    suggestions: [], // quick-reply chips, added in Phase 2+
+    reply: result.reply,
+    intent: result.intent,
+    data: result.data ?? null,
+    suggestions: result.suggestions ?? [],
   };
 };
 

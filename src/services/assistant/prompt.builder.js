@@ -37,3 +37,32 @@ export const buildContents = (history, userMessage) => {
   contents.push({ role: "user", parts: [{ text: userMessage }] });
   return contents;
 };
+
+/**
+ * Build a single-turn prompt for the cheapest-flight handler.
+ *
+ * The flight data has already been queried, sorted, and verified by the
+ * backend — the model only PHRASES it. No conversation history is sent (it is
+ * not needed to describe a price list), which keeps this call very cheap.
+ *
+ * @param {Array<object>} flights - compact, pre-sorted flight summaries.
+ * @param {string} userMessage - the original user question.
+ * @returns {Array} Gemini-formatted contents (a single user turn).
+ */
+export const buildCheapestFlightPrompt = (flights, userMessage) => {
+  const lines = flights.map(
+    (f, i) =>
+      `${i + 1}. ${f.airline} ${f.flightNumber}, ${f.from} to ${f.to}, ` +
+      `departs ${f.departs}, ${f.currency} ${f.price.toLocaleString()}, ` +
+      `${f.refundable ? "refundable" : "non-refundable"}`
+  );
+
+  const text =
+    `CONTEXT — real flights from the Flixor database, cheapest first. ` +
+    `Do not change any number, name, or date:\n${lines.join("\n")}\n\n` +
+    `User asked: "${userMessage}"\n` +
+    `Recommend the cheapest option and briefly note how many alternatives ` +
+    `exist. Reply in 2-3 short sentences, plain text.`;
+
+  return [{ role: "user", parts: [{ text }] }];
+};
